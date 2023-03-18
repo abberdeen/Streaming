@@ -1,0 +1,79 @@
+﻿@page "/"
+@inject IJSRuntime jsRuntime;
+
+<PageTitle>Index</PageTitle>
+<textarea cols="100">@text</textarea>
+
+<br />
+<br /> 
+
+<button onclick="@(()=>ReadStreamLong("http://localhost:5000/"))">
+    Try Read Stream via Http
+</button>
+
+<button onclick="@(()=>ReadStreamLong("https://localhost:5001/"))">
+    Try Read Stream via Https
+</button>
+
+@*<button onclick="@(()=> {text=""; iframeUrl= "https://localhost:5001/Stream"; StateHasChanged();})">
+    Try Read Stream via Iframe
+</button>
+*@
+<br />
+<br /> 
+
+<iframe id="myIframe"  src="@iframeUrl" onload="@(async ()=>{
+  //  text = await jsRuntime.InvokeAsync<string>("eval", "document.getElementById('myIframe').innerHTML");
+  //  StateHasChanged();
+})">
+</iframe>
+
+
+@code {
+    string text;
+
+    string iframeUrl = "";
+
+    async Task ReadStreamShort(string url)
+    {
+        text = null;
+
+        var http = new HttpClient();
+
+        http.BaseAddress = new Uri(url);
+        var path = "/Stream";
+
+        Stream responseStream = await http.GetStreamAsync(path);
+        using (StreamReader reader = new StreamReader(responseStream))
+        {
+            text = await reader.ReadToEndAsync();
+            Console.Write(text);
+        }
+    }
+
+    async Task ReadStreamLong(string url)
+    {
+        text = null;
+
+        var http = new HttpClient();
+
+        http.BaseAddress = new Uri(url);
+        var path = "/Stream";
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        request.SetBrowserResponseStreamingEnabled(true);
+
+        using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        using var stream = await response.Content.ReadAsStreamAsync();
+        using var reader = new StreamReader(stream);
+
+        var buffer = new char[1024];
+        int bytesRead;
+
+        while ((bytesRead = await reader.ReadBlockAsync(buffer, 0, buffer.Length)) > 0)
+        {
+            text = new string(buffer, 0, bytesRead);
+            Console.Write(text); 
+        }
+    }
+}
