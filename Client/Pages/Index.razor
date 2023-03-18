@@ -7,12 +7,16 @@
 <br />
 <br /> 
 
-<button onclick="@(()=>ReadStreamLong("http://localhost:5000/"))">
+<button onclick="@(()=>ReadStreamLong("http://localhost:5000/", "/Stream"))">
     Try Read Stream via Http
 </button>
 
-<button onclick="@(()=>ReadStreamLong("https://localhost:5001/"))">
+<button onclick="@(()=>ReadStreamLong("https://localhost:5001/" ,"/Stream" ))">
     Try Read Stream via Https
+</button>
+
+<button onclick="@(()=>ReadStreamLong("https://localhost:5001/", "/WithoutClosingStream"))">
+    Try Read Stream via Https without closing stream
 </button>
 
 @*<button onclick="@(()=> {text=""; iframeUrl= "https://localhost:5001/Stream"; StateHasChanged();})">
@@ -34,14 +38,13 @@
 
     string iframeUrl = "";
 
-    async Task ReadStreamShort(string url)
+    async Task ReadStreamShort(string url, string path)
     {
         text = null;
 
         var http = new HttpClient();
 
-        http.BaseAddress = new Uri(url);
-        var path = "/Stream";
+        http.BaseAddress = new Uri(url); 
 
         Stream responseStream = await http.GetStreamAsync(path);
         using (StreamReader reader = new StreamReader(responseStream))
@@ -51,14 +54,13 @@
         }
     }
 
-    async Task ReadStreamLong(string url)
+    async Task ReadStreamLong(string url, string path)
     {
         text = null;
 
         var http = new HttpClient();
 
-        http.BaseAddress = new Uri(url);
-        var path = "/Stream";
+        http.BaseAddress = new Uri(url); 
 
         using var request = new HttpRequestMessage(HttpMethod.Get, path);
         request.SetBrowserResponseStreamingEnabled(true);

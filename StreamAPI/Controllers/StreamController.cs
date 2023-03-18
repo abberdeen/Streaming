@@ -5,7 +5,7 @@ namespace StreamAPI.Controllers
     [ApiController]
     [Route("[controller]")]
     public class StreamController : ControllerBase
-    { 
+    {
 
         private readonly ILogger<StreamController> _logger;
 
@@ -13,7 +13,6 @@ namespace StreamAPI.Controllers
         {
             _logger = logger;
         }
-
 
         [HttpGet("")]
         public async Task GetStream()
@@ -37,6 +36,32 @@ namespace StreamAPI.Controllers
                     await writer.FlushAsync(); // Flush the buffer to send the data in chunks
                     await Task.Delay(10); // Wait for 1 second before writing the next line
                 }
+            } 
+        } 
+
+        private StreamWriter streamWrtr;
+
+        [HttpGet("/WithoutClosingStream")]
+        public async Task GetStreamWithoutClosingStream()
+        {
+            byte[] buffer = new byte[1024 * 16]; // 16KB buffer
+
+            Response.ContentType = "application/json";
+
+            // Important 
+            Response.Headers["Content-Encoding"] = "identity";
+            Response.Headers["Transfer-Encoding"] = "identity";
+
+            streamWrtr = new StreamWriter(Response.Body);
+
+            // In this example, we write 1000 lines of text,
+            // with each line being 100 characters long.
+            for (int i = 0; i < 100; i++)
+            {
+                string line = new string('x', 100); // 100-character line
+                await streamWrtr.WriteLineAsync(line);
+                await streamWrtr.FlushAsync(); // Flush the buffer to send the data in chunks
+                await Task.Delay(10); // Wait for 1 second before writing the next line
             }
         }
     }
