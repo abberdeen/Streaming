@@ -63,6 +63,7 @@ namespace StreamAPI.Controllers
                 await streamWrtr.FlushAsync(); // Flush the buffer to send the data in chunks
                 await Task.Delay(10); // Wait for 1 second before writing the next line
             }
+            streamWrtr.Close();
         }
     }
 }

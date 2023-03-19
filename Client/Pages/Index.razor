@@ -19,6 +19,14 @@
     Try Read Stream via Https without closing stream
 </button>
 
+<button onclick="@(()=>ReadStreamLong("http://localhost:7187/", "/api/stream-text/"))">
+    Try RespondWithStream Without ContentLength
+</button>
+
+<button onclick="@(()=>ReadStreamLong("http://localhost:7187/", "/api/stream-text-with-length/"))">
+    Try RespondWithStream With Content Length
+</button>
+
 @*<button onclick="@(()=> {text=""; iframeUrl= "https://localhost:5001/Stream"; StateHasChanged();})">
     Try Read Stream via Iframe
 </button>
